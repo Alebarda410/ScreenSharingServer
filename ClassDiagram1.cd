@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Server.Properties.Resources" Collapsed="true">
+    <Position X="13.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.ClientConnectionState">
+    <Position X="4.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAQAACAAAAAAAAAAAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Telepathy 1.7\Client.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.Client">
+    <Position X="1" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gIQAAAIAAAABQAACAEAAAIAAAAAAAAIEQACAAAAAQAA=</HashCode>
+      <FileName>Telepathy 1.7\Client.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.Common">
+    <Position X="1" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAAgAAgAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Telepathy 1.7\Common.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.ConnectionState">
+    <Position X="4.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAABAAAAAA=</HashCode>
+      <FileName>Telepathy 1.7\ConnectionState.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.Log">
+    <Position X="6.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAABAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Telepathy 1.7\Log.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.MagnificentReceivePipe">
+    <Position X="8" Y="1.25" Width="1.5" />
+    <NestedTypes>
+      <Struct Name="Telepathy.MagnificentReceivePipe.Entry" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Telepathy 1.7\MagnificentReceivePipe.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AABAEAABAAAABAAAAABAAAQAAAAAAAAAAAgKAABAAAA=</HashCode>
+      <FileName>Telepathy 1.7\MagnificentReceivePipe.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.MagnificentSendPipe">
+    <Position X="8" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAABAAAQAAAAAAAEAAAgCAABAAAA=</HashCode>
+      <FileName>Telepathy 1.7\MagnificentSendPipe.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.NetworkStreamExtensions">
+    <Position X="6.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>Telepathy 1.7\NetworkStreamExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.Pool&lt;T&gt;">
+    <Position X="6.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAAAAAAAAAAAQAAQAAAAAAAAEAEABAAAA=</HashCode>
+      <FileName>Telepathy 1.7\Pool.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.Server">
+    <Position X="2.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gIQAAAIAACAAAFAAAEAAAAAgAIAAQAMgYABIAAAASAA=</HashCode>
+      <FileName>Telepathy 1.7\Server.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.ThreadFunctions">
+    <Position X="4.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAEAAAAAgAACAAAAAAABAAAAAAA=</HashCode>
+      <FileName>Telepathy 1.7\ThreadFunctions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Telepathy.Utils">
+    <Position X="2.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Telepathy 1.7\Utils.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Server.Form1" Collapsed="true">
+    <Position X="6.25" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAQBAD+AYKGgDJhqUMSRAIFCFSGgKCECCBZUIINAkIA=</HashCode>
+      <FileName>Form1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Server.Program" Collapsed="true">
+    <Position X="13.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="Telepathy.EventType" Collapsed="true">
+    <Position X="16" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAAABAAAAAAAgAAAAA=</HashCode>
+      <FileName>Telepathy 1.7\EventType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
