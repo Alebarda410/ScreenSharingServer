@@ -20,8 +20,7 @@ namespace Server
     {
         private Telepathy.Server _server;
 
-        private Thread _broadcastThread;
-
+        private CancellationTokenSource _cts;
         private PerformanceCounter _cpuUsing;
 
         private readonly Image _bitmapPointer = Resources.pointer;
@@ -155,18 +154,18 @@ namespace Server
             }
         }
 
-        public void Broadcast()
+        private async void Broadcast(CancellationToken token)
         {
             try
             {
-                Task taskSend = Task.Run(() => true);
-                while (true)
+                Task taskSend = Task.Run(() => true, token);
+                while (!token.IsCancellationRequested)
                 {
                     _mre.WaitOne();
                     var crs = Cursor.Position;
                     crs.X -= _windowSize.Left;
                     crs.Y -= _windowSize.Top;
-                    var paramImg = (Bitmap)_screenBitmap.Clone();
+                    var paramImg = (Bitmap) _screenBitmap.Clone();
                     Parallel.Invoke(() => ImageResize(paramImg),
                         () =>
                         {
@@ -175,21 +174,24 @@ namespace Server
                                 0, 0, _windowSize.Size);
                             g.DrawImage(_bitmapPointer, crs.X, crs.Y);
                         });
-                    taskSend.Wait();
-                    taskSend = Task.Run(ImageSend);
-                    if (_sleepTime != 0) Thread.Sleep(_sleepTime);
+                    await taskSend.WaitAsync(token);
+                    taskSend = Task.Run(ImageSend, token);
+                    if (_sleepTime != 0) await Task.Delay(_sleepTime, token);
                 }
             }
-            catch (Exception) {/**/}
+            catch (Exception)
+            {
+                /**/
+            }
         }
 
-        public void ImageResize(Bitmap img)
+        private void ImageResize(Bitmap img)
         {
             if (_imgResize)
             {
                 _sendBitmap = new Bitmap(img,
-                    (int)(_curScreen.Bounds.Width / 1.41),
-                    (int)(_curScreen.Bounds.Height / 1.41));
+                    (int) (_curScreen.Bounds.Width / 1.41),
+                    (int) (_curScreen.Bounds.Height / 1.41));
             }
             else
             {
@@ -197,20 +199,15 @@ namespace Server
             }
         }
 
-        public void ImageSend()
+        private void ImageSend()
         {
-            MemoryStream memoryStream;
-            //_imgSendStopwatch.Restart();
-            using (memoryStream = new MemoryStream())
-            {
-                _sendBitmap.Save(memoryStream, ImageFormat.Jpeg);
-            }
+            using var memoryStream = new MemoryStream();
+            
+            _sendBitmap.Save(memoryStream, ImageFormat.Jpeg);
+            
             var btBuf = new ArraySegment<byte>(memoryStream.GetBuffer());
 
-            Parallel.ForEach(_currentConnection, (par) =>
-            {
-                _server.Send(par, btBuf);
-            });
+            Parallel.ForEach(_currentConnection, (par) => { _server.Send(par, btBuf); });
         }
 
         private void SaveLogs_Click(object sender, EventArgs e)
@@ -244,12 +241,14 @@ namespace Server
                 _waitConnection[index] = -1;
                 WaitListBox.Items.RemoveAt(index);
             }
+
             _waitConnection.RemoveAll(x => x == -1);
             WaitListCount.Text = $@"{_waitConnection.Count}";
             CurrentListCount.Text = $@"{_currentConnection.Count}";
             AddButton.Enabled = false;
             NoAddButton.Enabled = false;
         }
+
         private void NoAddButton_Click(object sender, EventArgs e)
         {
             for (var i = WaitListBox.SelectedIndices.Count - 1; i >= 0; i--)
@@ -260,6 +259,7 @@ namespace Server
                 _waitConnection[index] = -1;
                 WaitListBox.Items.RemoveAt(index);
             }
+
             _waitConnection.RemoveAll(x => x == -1);
             WaitListCount.Text = $@"{_waitConnection.Count}";
             AddButton.Enabled = false;
@@ -276,12 +276,13 @@ namespace Server
                 _currentConnection[index] = -1;
                 CurrentListBox.Items.RemoveAt(index);
             }
+
             _currentConnection.RemoveAll(x => x == -1);
             CurrentListCount.Text = $@"{_currentConnection.Count}";
             KickButton.Enabled = false;
         }
 
-        private void StartButton_Click(object sender, EventArgs e)
+        private async void StartButton_Click(object sender, EventArgs e)
         {
             if (!IsCorrect(MaxConBox.Text, out _maxCon, 1))
             {
@@ -289,19 +290,22 @@ namespace Server
                     @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             if (!IsCorrect(PortBox.Text, out _port, 10000, 60000))
             {
                 MessageBox.Show(@"Номер порта должен находиться между 10000 и 60000!",
                     @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (_server.Start(_port)) AddLog("Трансляция запущена");
+
+            if (await _server.Start(_port)) AddLog("Трансляция запущена");
             else
             {
                 MessageBox.Show(@"Не удалось запустить трансляцию, смените порт и повторите попытку!",
                     @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             StartButton.Enabled = false;
             _pauseBtn.Enabled = true;
             _stopBtn.Enabled = true;
@@ -313,12 +317,8 @@ namespace Server
             timer1.Start();
             _windowSize = _curScreen.Bounds;
             _screenBitmap = new Bitmap(_windowSize.Width, _windowSize.Height);
-            _broadcastThread = new Thread(Broadcast)
-            {
-                IsBackground = true,
-                Priority = ThreadPriority.Highest
-            };
-            _broadcastThread.Start();
+            _cts = new CancellationTokenSource();
+            new Task(() => Broadcast(_cts.Token), TaskCreationOptions.LongRunning).Start();
         }
 
         private void PauseButton_Click(object sender, EventArgs e)
@@ -341,12 +341,15 @@ namespace Server
                         @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
                 if (_maxCon < _countCurrentCon)
                 {
-                    MessageBox.Show(@"Новое колво клиентов должно быть больше или равно текущему количеству подключений!",
+                    MessageBox.Show(
+                        @"Новое колво клиентов должно быть больше или равно текущему количеству подключений!",
                         @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
                 _windowSize = _curScreen.Bounds;
                 _screenBitmap = new Bitmap(_windowSize.Width, _windowSize.Height);
                 _mre.Set();
@@ -390,18 +393,13 @@ namespace Server
                 _mre.Set();
                 _pause = true;
             }
-            _broadcastThread.Interrupt();
+
+            _cts.Cancel();
             AddLog("Трансляция окончена");
-            Thread.Sleep(1000);
 
             WindowState = FormWindowState.Normal;
         }
-
-        public static string LtS(long l)
-        {
-            return $"{l}";
-        }
-
+        
         private void Init()
         {
             var contextMenu1 = new ContextMenuStrip();
@@ -409,7 +407,7 @@ namespace Server
             _pauseBtn = new ToolStripMenuItem();
             var accessAllBtn = new ToolStripMenuItem();
             _stopBtn = new ToolStripMenuItem();
-            contextMenu1.Items.AddRange(new ToolStripItem[] { _waitBtn, _pauseBtn, accessAllBtn, _stopBtn });
+            contextMenu1.Items.AddRange(new ToolStripItem[] {_waitBtn, _pauseBtn, accessAllBtn, _stopBtn});
 
             _waitBtn.Text = @"Выкл ожидание";
             _pauseBtn.Text = @"Пауза";
@@ -434,6 +432,7 @@ namespace Server
                 OnDisconnected = Dis
             };
         }
+
         private void Form1_Shown(object sender, EventArgs e)
         {
             Init();
@@ -446,11 +445,13 @@ namespace Server
                 _curScreen = Screen.AllScreens[0];
                 return;
             }
+
             foreach (var t in Screen.AllScreens)
                 ScreenComBox.Items.Add(t.DeviceName);
             ScreenComBox.SelectedIndex = 0;
             AddLog($"Текущий монитор {Screen.FromControl(this).DeviceName}");
         }
+
         private void Form1_Resize(object sender, EventArgs e)
         {
             if (WindowState == FormWindowState.Minimized)
@@ -491,13 +492,12 @@ namespace Server
         {
             return ((toHigh - toLow) / (fromHigh - fromLow)) * (value - fromLow) + toLow;
         }
+
         private void Balanced(int cpuAvg)
         {
             try
             {
-                _sleepTime = cpuAvg >= 85 ? 
-                    Map(cpuAvg, 85, 100, 10, 100) :
-                    0;
+                _sleepTime = cpuAvg >= 85 ? Map(cpuAvg, 85, 100, 10, 100) : 0;
             }
             catch (UnauthorizedAccessException)
             {
@@ -506,6 +506,7 @@ namespace Server
         }
 
         private readonly List<float> _cpuUseList = new();
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             _server.Tick(30);
@@ -514,34 +515,36 @@ namespace Server
             {
                 _cpuUseList.RemoveAt(0);
             }
-            Balanced((int)_cpuUseList.Average());
+
+            Balanced((int) _cpuUseList.Average());
             GC.Collect();
         }
 
         private void ImgResize_Click(object sender, EventArgs e)
-        {            ImgResize.Checked = !_imgResize;
+        {
+            ImgResize.Checked = !_imgResize;
             _imgResize = ImgResize.Checked;
         }
 
-        public static bool IsCorrect(string arg, out int numb, int lf = 0, int rt = int.MaxValue - 1)
+        private static bool IsCorrect(string arg, out int numb, int lf = 0, int rt = int.MaxValue - 1)
         {
             if (!int.TryParse(arg, out numb)) return false;
             return numb >= lf && numb <= rt;
         }
 
-        public void AddLog(string str)
+        private void AddLog(string str)
         {
             _time = DateTime.Now;
             richTextBox1.AppendText($"[{_time.Hour}:{_time.Minute}:{_time.Second}] {str}\n");
-            if (WindowState == FormWindowState.Minimized)
-            {
-                notifyIcon1.BalloonTipText = str;
-                notifyIcon1.BalloonTipTitle = @"Уведомление";
-                notifyIcon1.ShowBalloonTip(1000);
-            }
+
+            if (WindowState != FormWindowState.Minimized) return;
+
+            notifyIcon1.BalloonTipText = str;
+            notifyIcon1.BalloonTipTitle = @"Уведомление";
+            notifyIcon1.ShowBalloonTip(1000);
         }
 
-        public void GetLocalAddress()
+        private void GetLocalAddress()
         {
             if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
                 AddLog("Сеть не обнаружена!");

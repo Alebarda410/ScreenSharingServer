@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Telepathy
 {
@@ -199,7 +200,7 @@ namespace Telepathy
 
         // start listening for new connections in a background thread and spawn
         // a new thread for each one.
-        public bool Start(int port)
+        public async Task<bool> Start(int port)
         {
             // not if already started
             if (Active) return false;
@@ -224,7 +225,7 @@ namespace Telepathy
             // на одном порту нескольких клиентов, что является ошибкой, так как
             // listenerThread при этом выбрасывает исключение завершения работы
             // которое считается нормальным при заершении  потока штатными средствами
-            Thread.Sleep(100);
+            await Task.Delay(100);
             return Active;
         }
 

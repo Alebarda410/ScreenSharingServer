@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon>Group 1.ico</ApplicationIcon>
+    <LangVersion>10</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
