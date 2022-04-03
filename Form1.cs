@@ -92,14 +92,14 @@ namespace Server
 
         private void Con(int id)
         {
-            Invoke(new Action(() =>
+            Invoke(() =>
             {
                 _countCurrentCon++;
                 if (_countCurrentCon > _maxCon)
                 {
                     _server.Disconnect(id);
                 }
-            }));
+            });
         }
 
         private void Dis(int id)
@@ -159,6 +159,7 @@ namespace Server
             try
             {
                 Task taskSend = Task.Run(() => true, token);
+               
                 while (!token.IsCancellationRequested)
                 {
                     _mre.WaitOne();
@@ -488,9 +489,9 @@ namespace Server
             _curScreen = Screen.AllScreens[ScreenComBox.SelectedIndex];
         }
 
-        private static int Map(int value, int fromLow, int fromHigh, int toLow, int toHigh)
+        private static int Map(int value, int inMin, int inMax, int outMin, int outMax)
         {
-            return ((toHigh - toLow) / (fromHigh - fromLow)) * (value - fromLow) + toLow;
+            return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
         }
 
         private void Balanced(int cpuAvg)
