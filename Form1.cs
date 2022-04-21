@@ -53,16 +53,19 @@ namespace Server
         {
             if (_waitOffOn)
             {
-                _waitBtn.Text = @"Выкл ожидание";
-                WaitOffOn.Text = @"Выкл ожидание";
+                _waitBtn.Text = "Выкл ожидание";
+                WaitOffOn.Text = "Выкл ожидание";
                 _waitOffOn = false;
+                AddLog("Режим ожидания выключен");
+
             }
             else
             {
-                _waitBtn.Text = @"Вкл ожидание";
-                WaitOffOn.Text = @"Вкл ожидание";
+                _waitBtn.Text = "Вкл ожидание";
+                WaitOffOn.Text = "Вкл ожидание";
                 AccessAll();
                 _waitOffOn = true;
+                AddLog("Режим ожидания включен");
             }
         }
 
@@ -486,11 +489,38 @@ namespace Server
         private void ScreenComBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             _curScreen = Screen.AllScreens[ScreenComBox.SelectedIndex];
+            AddLog("Монитор изменен на " + _curScreen.DeviceName);
         }
 
         private static int Map(int value, int inMin, int inMax, int outMin, int outMax)
         {
             return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        }
+
+        private void ImgResize_Click(object sender, EventArgs e)
+        {
+            if (_imgResize)
+            {
+                _imgResize = false;
+                ImgResize.Checked = false;
+                AddLog("Выключен режим экономии трафика");
+            }
+            else
+            {
+                _imgResize = true;
+                ImgResize.Checked = true;
+                AddLog("Включен режим экономии трафика");
+            }
+        }
+
+        private void MaxConBox_TextChanged(object sender, EventArgs e)
+        {
+            AddLog("Максимальное количество клиентов изменено на: " + MaxConBox.Text);
+        }
+
+        private void PortBox_TextChanged(object sender, EventArgs e)
+        {
+            AddLog("Порт подключения изменен на : " + PortBox.Text);
         }
 
         private void Balanced(int cpuAvg)
@@ -518,12 +548,6 @@ namespace Server
 
             Balanced((int) _cpuUseList.Average());
             GC.Collect();
-        }
-
-        private void ImgResize_Click(object sender, EventArgs e)
-        {
-            ImgResize.Checked = !_imgResize;
-            _imgResize = ImgResize.Checked;
         }
 
         private static bool IsCorrect(string arg, out int numb, int lf = 0, int rt = int.MaxValue - 1)

@@ -163,6 +163,7 @@ namespace Server
             this.PortBox.Size = new System.Drawing.Size(100, 29);
             this.PortBox.Text = "12345";
             this.PortBox.ToolTipText = "Порт старта трансляции";
+            this.PortBox.TextChanged += new System.EventHandler(this.PortBox_TextChanged);
             // 
             // toolStripSeparator3
             // 
@@ -182,6 +183,7 @@ namespace Server
             this.MaxConBox.Size = new System.Drawing.Size(100, 29);
             this.MaxConBox.Text = "30";
             this.MaxConBox.ToolTipText = "Максимальное количество подключений которое будет потдерживать приложение";
+            this.MaxConBox.TextChanged += new System.EventHandler(this.MaxConBox_TextChanged);
             // 
             // toolStripSeparator4
             // 
@@ -201,6 +203,7 @@ namespace Server
             // 
             // ImgResize
             // 
+            this.ImgResize.BackColor = System.Drawing.SystemColors.Control;
             this.ImgResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.ImgResize.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.ImgResize.Name = "ImgResize";
