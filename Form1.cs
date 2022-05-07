@@ -31,7 +31,7 @@ namespace Server
 
         private Rectangle _windowSize;
         private DateTime _time;
-        
+
         private int _port, _maxCon, _countCurrentCon, _sleepTime;
         private bool _pause = true;
         private bool _waitOffOn, _imgResize;
@@ -42,8 +42,9 @@ namespace Server
 
         private readonly List<int> _currentConnection = new();
         private readonly List<int> _waitConnection = new();
-        
+
         private readonly MemoryStream _memoryStream = new();
+
         public Form1()
         {
             InitializeComponent();
@@ -57,7 +58,6 @@ namespace Server
                 WaitOffOn.Text = "Выкл ожидание";
                 _waitOffOn = false;
                 AddLog("Режим ожидания выключен");
-
             }
             else
             {
@@ -162,17 +162,17 @@ namespace Server
             try
             {
                 Task taskSend = Task.Run(() => true, token);
-               
+
                 while (!token.IsCancellationRequested)
                 {
                     _mre.WaitOne();
                     var paramImg = (Bitmap) _screenBitmap.Clone();
-                    
+
                     Parallel.Invoke(() => ImageResize(paramImg), PrtSc);
-                    
+
                     await taskSend.WaitAsync(token);
                     taskSend = Task.Run(ImageSend, token);
-                    
+
                     if (_sleepTime != 0) await Task.Delay(_sleepTime, token);
                 }
             }
@@ -192,6 +192,7 @@ namespace Server
                 0, 0, _windowSize.Size);
             g.DrawImage(_bitmapPointer, crs.X, crs.Y);
         }
+
         private void ImageResize(Bitmap img)
         {
             if (_imgResize)
@@ -210,7 +211,7 @@ namespace Server
         {
             _memoryStream.Position = 0;
             _sendBitmap.Save(_memoryStream, ImageFormat.Jpeg);
-            Parallel.ForEach(_currentConnection, par =>  _server.Send(par, _memoryStream.GetBuffer()));
+            Parallel.ForEach(_currentConnection, par => _server.Send(par, _memoryStream.GetBuffer()));
         }
 
         private void SaveLogs_Click(object sender, EventArgs e)
@@ -402,7 +403,7 @@ namespace Server
 
             WindowState = FormWindowState.Normal;
         }
-        
+
         private void Init()
         {
             var contextMenu1 = new ContextMenuStrip();
@@ -535,15 +536,15 @@ namespace Server
             }
         }
 
-        private readonly List<float> _cpuUseList = new();
+        private readonly Queue<float> _cpuUseList = new();
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             _server.Tick(30);
-            _cpuUseList.Add(_cpuUsing.NextValue());
+            _cpuUseList.Enqueue(_cpuUsing.NextValue());
             if (_cpuUseList.Count > 10)
             {
-                _cpuUseList.RemoveAt(0);
+                _cpuUseList.Dequeue();
             }
 
             Balanced((int) _cpuUseList.Average());
